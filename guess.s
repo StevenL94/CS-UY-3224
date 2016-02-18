@@ -19,7 +19,7 @@ get_time:
     outb %al, $0x70
     inb $0x71, %al
     and 0x0F, %al
-    movl %al, %bl
+    movb %al, %bl
     jmp user_input
 
 user_input:
