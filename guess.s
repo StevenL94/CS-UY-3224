@@ -11,6 +11,7 @@ print_char:
     lodsb           # loads a single byte from (%si) into %al and increments %si
     testb %al,%al   # checks to see if the byte is 0
     jz user_input         # if so, jump out (jz jumps if ZF in EFLAGS is set)
+    je done
     movb $0x0E,%ah  # 0x0E is the BIOS code to print the single character
     int $0x10       # call into the BIOS using a software interrupt
     jmp print_char  # go back to the start of the loop
@@ -34,9 +35,11 @@ test_input:
 wrong:
     movw $message1, %si
     jmp print_char
+
 correct:
     movw $message1, %si
     jmp print_char
+    jmp done
 
 done: 
     jmp done        # loop forever
@@ -44,12 +47,20 @@ done:
 # The .string command inserts an ASCII string with a null terminator
 message:
     .string    "What number am I thinking of (0-9)? "
+    
+messageNL:
+    movb $0x0A, %al
+    int $0x10
+    movb $0x0D, %al
+    int $0x10
 
 message1:
-    .string    "Wrong!"
+    .string    "Wrong!\n"
 
 message2:
     .string    "Right! Congratulations."
+message3
+    .string    "\0";
 
 
 # This pads out the rest of the boot sector and then puts
