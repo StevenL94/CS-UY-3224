@@ -24,6 +24,7 @@ print_char:
 user_input:
     movb $0x00,%ah
     int $0x16
+    movb %al, %bl
     movb $0x0E,%ah
     int $0x10
     movb $0x0A, %al
@@ -32,8 +33,8 @@ user_input:
     int $0x10
 
 cmp_input:
-    cmp %al, %bl
-    jne done
+    cmp %bl, %bh
+    jne wrong
     je correct
 
 correct:
@@ -41,12 +42,12 @@ correct:
     jmp print_correct
 
 print_correct: 
-    lodsb           # loads a single byte from (%si) into %al and increments %si
-    testb %al,%al   # checks to see if the byte is 0
-    jz done         # if so, jump out (jz jumps if ZF in EFLAGS is set)
-    movb $0x0E,%ah  # 0x0E is the BIOS code to print the single character
-    int $0x10       # call into the BIOS using a software interrupt
-    jmp print_char  # go back to the start of the loop
+    lodsb               # loads a single byte from (%si) into %al and increments %si
+    testb %al,%al       # checks to see if the byte is 0
+    jz done             # if so, jump out (jz jumps if ZF in EFLAGS is set)
+    movb $0x0E,%ah      # 0x0E is the BIOS code to print the single character
+    int $0x10           # call into the BIOS using a software interrupt
+    jmp print_correct   # go back to the start of the loop
 
 wrong:
     movw $message1, %si
