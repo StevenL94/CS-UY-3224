@@ -8,6 +8,7 @@ start:
     int $0x10           # call into the BIOS
 
 get_time:
+    movb $0x00, %al
     outb %al, $0x70
     inb $0x71, %al
     andb $0x0F, %al
@@ -33,7 +34,7 @@ user_input:
     int $0x10
 
 cmp_input:
-    cmp %bl, %bh
+    testb %bl, %bh
     jne wrong
     je correct
 
