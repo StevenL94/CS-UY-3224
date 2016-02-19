@@ -6,20 +6,21 @@ start:
     movb $0x00,%ah      # 0x00 - set video mode
     movb $0x03,%al      # 0x03 - 80x25 text mode
     int $0x10           # call into the BIOS
-
-print_char: 
-    lodsb           # loads a single byte from (%si) into %al and increments %si
-    testb %al,%al   # checks to see if the byte is 0
-    jz get_time         # if so, jump out (jz jumps if ZF in EFLAGS is set)
-    movb $0x0E,%ah  # 0x0E is the BIOS code to print the single character
-    int $0x10       # call into the BIOS using a software interrupt
-    jmp print_char  # go back to the start of the loop
+    jmp print_char
 
 get_time:
     outb %al, $0x70
     inb $0x71, %al
     and 0x0F, %al
-    movb %al, %bl
+    movb %al, %dl
+
+print_char: 
+    lodsb           # loads a single byte from (%si) into %al and increments %si
+    testb %al,%al   # checks to see if the byte is 0
+    jz user_input   # if so, jump out (jz jumps if ZF in EFLAGS is set)
+    movb $0x0E,%ah  # 0x0E is the BIOS code to print the single character
+    int $0x10       # call into the BIOS using a software interrupt
+    jmp print_char  # go back to the start of the loop
 
 user_input:
     movb $0x00,%ah
@@ -32,31 +33,25 @@ user_input:
     int $0x10
 
 test_input:
-    test %al, %bl
+    testb %ah, %dl
     jne wrong
     je correct
 
 wrong:
     movw $message1, %si
-
-wrong_print:
-    lodsb           # loads a single byte from (%si) into %al and increments %si
-    testb %al,%al   # checks to see if the byte is 0
-    jz user_input   # if so, jump out (jz jumps if ZF in EFLAGS is set)
-    movb $0x0E,%ah  # 0x0E is the BIOS code to print the single character
-    int $0x10       # call into the BIOS using a software interrupt
-    jmp wrong_print
+    jmp print_char
 
 correct:
     movw $message1, %si
+    jmp print_correct
 
-correct_print:
-    lodsb               # loads a single byte from (%si) into %al and increments %si
-    testb %al,%al       # checks to see if the byte is 0
-    jz done             # if so, jump out (jz jumps if ZF in EFLAGS is set)
-    movb $0x0E,%ah      # 0x0E is the BIOS code to print the single character
-    int $0x10           # call into the BIOS using a software interrupt
-    jmp correct_print   # go back to the start of the loop
+print_correct: 
+    lodsb           # loads a single byte from (%si) into %al and increments %si
+    testb %al,%al   # checks to see if the byte is 0
+    jz done         # if so, jump out (jz jumps if ZF in EFLAGS is set)
+    movb $0x0E,%ah  # 0x0E is the BIOS code to print the single character
+    int $0x10       # call into the BIOS using a software interrupt
+    jmp print_char  # go back to the start of the loop
 
 done: 
     jmp done        # loop forever
