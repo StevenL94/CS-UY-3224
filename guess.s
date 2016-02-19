@@ -6,13 +6,12 @@ start:
     movb $0x00,%ah      # 0x00 - set video mode
     movb $0x03,%al      # 0x03 - 80x25 text mode
     int $0x10           # call into the BIOS
-    jmp print_char
 
 get_time:
     outb %al, $0x70
     inb $0x71, %al
-    and 0x0F, %al
-    movb %al, %dl
+    andb $0x0F, %al
+    movb %al, %bh
 
 print_char: 
     lodsb           # loads a single byte from (%si) into %al and increments %si
@@ -32,17 +31,13 @@ user_input:
     movb $0x0D, %al
     int $0x10
 
-test_input:
-    testb %ah, %dl
-    jne wrong
+cmp_input:
+    cmp %al, %bl
+    jne done
     je correct
 
-wrong:
-    movw $message1, %si
-    jmp print_char
-
 correct:
-    movw $message1, %si
+    movw $message2, %si
     jmp print_correct
 
 print_correct: 
@@ -52,6 +47,10 @@ print_correct:
     movb $0x0E,%ah  # 0x0E is the BIOS code to print the single character
     int $0x10       # call into the BIOS using a software interrupt
     jmp print_char  # go back to the start of the loop
+
+wrong:
+    movw $message1, %si
+    jmp print_char
 
 done: 
     jmp done        # loop forever
