@@ -12,7 +12,7 @@ get_time:
     outb %al, $0x70
     inb $0x71, %al
     andb $0x0F, %al
-    movb %al, %bh
+    movb %al, %dh
 
 print_char: 
     lodsb           # loads a single byte from (%si) into %al and increments %si
@@ -25,7 +25,7 @@ print_char:
 user_input:
     movb $0x00,%ah
     int $0x16
-    movb %al, %bl
+    movb %al, %dl
     movb $0x0E,%ah
     int $0x10
     movb $0x0A, %al
@@ -34,7 +34,7 @@ user_input:
     int $0x10
 
 cmp_input:
-    testb %bl, %bh
+    testb %dl, %dh
     jne wrong
     je correct
 
