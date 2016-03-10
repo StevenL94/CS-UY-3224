@@ -274,21 +274,15 @@ scheduler(void)
 {
   struct proc *p;
   int foundproc = 1;
-  int totaltickets = 0;
-  int counter = 0;
     
-  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-      if(p->state != RUNNABLE)
-          continue;
-      totaltickets += p->num_tickets;
-  }
 //  cprintf("Total Tickets: %d\n", totaltickets);
 //  cprintf("Counter: %d\n", counter);
-  int winner = random_at_most(totaltickets);
     
   for(;;){
     // Enable interrupts on this processor.
     sti();
+    int totaltickets = 0;
+    int counter = 0;
 
     if (!foundproc) hlt();
     foundproc = 0;
@@ -296,10 +290,17 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
       
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if(p->state != RUNNABLE)
+            continue;
+        totaltickets += p->num_tickets;
+    }
+    int winner = random_at_most(totaltickets);
+      
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
-
+      counter += p->num_tickets;
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
@@ -314,10 +315,8 @@ scheduler(void)
           // It should have changed its p->state before coming back.
           proc = 0;
       }
-      counter += p->num_tickets;
     }
     release(&ptable.lock);
-
   }
 }
 
