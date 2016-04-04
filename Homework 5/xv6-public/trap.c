@@ -13,6 +13,8 @@ struct gatedesc idt[256];
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
+uint* addr;
+uint a;
 
 void
 tvinit(void)
@@ -78,7 +80,20 @@ trap(struct trapframe *tf)
     lapiceoi();
     break;
   case T_PGFLT:
-    
+    addr = (uint*)rcr2();
+    char *mem;
+    int n;
+    argint(0, &n);
+    a = PGROUNDUP(proc->sz);
+    for(; a < proc->sz + n; a += PGSIZE){
+        mem = kalloc();
+        if (mem == 0) {
+            cprintf("allocuvm out of memory\n");
+            deallocuvm(addr, proc->sz + n, proc->sz);
+        }
+        memset(mem, 0, PGSIZE);
+        mappages(addr, (char*)a, PGSIZE, v2p(mem), PTE_W|PTE_U);
+    }
     break;
    
   //PAGEBREAK: 13
