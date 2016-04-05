@@ -53,6 +53,7 @@ sys_sbrk(void)
   addr = proc->sz;
 //  if(growproc(n) < 0)
 //    return -1;
+  proc->sz +=n;
   return addr;
 }
 
