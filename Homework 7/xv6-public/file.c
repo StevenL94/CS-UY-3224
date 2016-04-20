@@ -8,7 +8,6 @@
 #include "fs.h"
 #include "file.h"
 #include "spinlock.h"
-//#include "date.h"
 
 struct devsw devsw[NDEV];
 struct {

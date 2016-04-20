@@ -1,4 +1,4 @@
-// On-disk file system format.
+// On-disk file system format. 
 // Both the kernel and user programs use this header file.
 
 
@@ -32,7 +32,6 @@ struct dinode {
   short nlink;          // Number of links to inode in file system
   uint size;            // Size of file (bytes)
   uint addrs[NDIRECT+1];   // Data block addresses
-  rtcdate* c_time;
 };
 
 // Inodes per block.

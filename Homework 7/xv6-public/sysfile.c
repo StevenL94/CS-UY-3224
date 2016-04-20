@@ -259,10 +259,10 @@ create(char *path, short type, short major, short minor)
     panic("create: ialloc");
 
   ilock(ip);
+  cmostime(ip->c_time);
   ip->major = major;
   ip->minor = minor;
   ip->nlink = 1;
-  cmostime(ip->c_time);
   iupdate(ip);
 
   if(type == T_DIR){  // Create . and .. entries.

@@ -22,8 +22,7 @@ struct inode {
   short nlink;
   uint size;
   uint addrs[NDIRECT+1];
-  rtcdate* c_time;
-  char pad[40];
+  struct rtcdate* c_time;
 };
 #define I_BUSY 0x1
 #define I_VALID 0x2
